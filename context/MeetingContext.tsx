@@ -11,14 +11,25 @@ export const MeetingProvider = ({ children }: { children: React.ReactNode }) => 
     const [meetings, setMeetings] = useState<Meeting[]>([]);
     
     useEffect(() => {
-        const meetings = localStorage.getItem('meetings');
-        if (meetings) {
-            setMeetings(JSON.parse(meetings) as Meeting[]);
+        const storedMeetings = localStorage.getItem('meetings');
+        if (storedMeetings) {
+            try {
+                const parsedMeetings = JSON.parse(storedMeetings);
+                const meetingsWithDates = parsedMeetings.map((meeting: Meeting) => ({
+                    ...meeting,
+                    date: new Date(meeting.date)
+                }));
+                setMeetings(meetingsWithDates);
+            } catch (error) {
+                console.error('Error parsing stored meetings:', error);
+            }
         }
     }, []);
 
     useEffect(() => {
-        localStorage.setItem('meetings', JSON.stringify(meetings));
+        if (meetings.length > 0) {
+            localStorage.setItem('meetings', JSON.stringify(meetings));
+        }
     }, [meetings]);
 
     return (

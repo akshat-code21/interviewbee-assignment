@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { MeetingContext } from '@/context/MeetingContext';
+import { Meeting } from '@/types/types';
 
 export const ScheduledMeetingCard = () => {
   const { meetings, setMeetings } = useContext(MeetingContext);
@@ -51,22 +52,26 @@ export const ScheduledMeetingCard = () => {
       if (response.data.success) {
         toast.success(`Your meeting "${title}" has been scheduled for ${format(date, 'PPP')} from ${time} to ${endTime}.`);
         setMeetLink(response.data.meetLink);
-        setDate(undefined);
-        setTime('');
-        setEndTime('');
-        setTitle('');
-        setDescription('');
-        setMeetings([...meetings, {
-          id: response.data.id,
+
+        const newMeeting: Meeting = {
+          id: response.data.eventId,
           title,
           description,
-          date,
+          date: date,
           startTime: time,
           endTime: endTime,
           link: response.data.meetLink,
           type: 'scheduled',
           status: 'upcoming'
-        }]);
+        };
+
+        setMeetings([...meetings, newMeeting]);
+        
+        setDate(undefined);
+        setTime('');
+        setEndTime('');
+        setTitle('');
+        setDescription('');
       } else {
         throw new Error(response.data.error || "Failed to schedule meeting");
       }

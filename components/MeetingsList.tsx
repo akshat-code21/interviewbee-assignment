@@ -1,22 +1,12 @@
 "use client"
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { Calendar, Clock, Copy, ExternalLink, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { MeetingContext } from '@/context/MeetingContext';
-
-interface Meeting {
-  id: string;
-  title: string;
-  description?: string;
-  date: string;
-  time: string;
-  link: string;
-  type: 'instant' | 'scheduled';
-  status: 'upcoming' | 'ongoing' | 'completed';
-}
+import { format } from 'date-fns';
 
 export const MeetingsList = () => {
   const { meetings, setMeetings } = useContext(MeetingContext);
@@ -31,6 +21,7 @@ export const MeetingsList = () => {
   };
 
   const deleteMeeting = (id: string) => {
+    setMeetings(meetings.filter(meeting => meeting.id !== id));
     toast.error("The meeting has been removed from your list.");
   };
 
@@ -41,16 +32,6 @@ export const MeetingsList = () => {
       case 'completed': return 'bg-gray-100 text-gray-800';
       default: return 'bg-gray-100 text-gray-800';
     }
-  };
-
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { 
-      weekday: 'short', 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
-    });
   };
 
   return (
@@ -69,9 +50,9 @@ export const MeetingsList = () => {
               <p className="text-sm sm:text-base">No meetings found. Create your first meeting above!</p>
             </div>
           ) : (
-            meetings.map((meeting,index) => (
+            meetings.map((meeting) => (
               <div 
-                key={index} 
+                key={meeting.id} 
                 className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border rounded-lg hover:bg-gray-50 transition-colors space-y-3 sm:space-y-0"
               >
                 <div className="flex-1 min-w-0">
@@ -94,11 +75,11 @@ export const MeetingsList = () => {
                   <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-4 text-xs sm:text-sm text-gray-500">
                     <div className="flex items-center">
                       <Calendar className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                      {formatDate(meeting.date.toISOString())}
+                      {format(meeting.date, 'EEE, MMM d, yyyy')}
                     </div>
                     <div className="flex items-center">
                       <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                      {meeting.startTime} - {meeting.endTime} 
+                      {meeting.startTime} - {meeting.endTime}
                     </div>
                   </div>
                 </div>
