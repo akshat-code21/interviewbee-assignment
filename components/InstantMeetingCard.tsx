@@ -4,6 +4,8 @@ import { Video, Copy, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import axios from 'axios';
+import { toast } from 'sonner';
 
 export const InstantMeetingCard = () => {
   const [meetingLink, setMeetingLink] = useState('');
@@ -11,27 +13,18 @@ export const InstantMeetingCard = () => {
 
   const generateMeetingLink = async () => {
     setIsGenerating(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      const mockMeetingId = Math.random().toString(36).substr(2, 9);
-      const link = `https://meet.google.com/${mockMeetingId}`;
-      setMeetingLink(link);
+    try {
+      const response = await axios.get('/api/createMeeting');
+      setMeetingLink(response.data.meetLink);
       setIsGenerating(false);
-      
-    //   toast({
-    //     title: "Meeting link generated!",
-    //     description: "Your instant meeting is ready to join.",
-    //   });
-    }, 1500);
+    } catch (error) {
+      console.error('Error generating meeting link:', error);
+    }
   };
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(meetingLink);
-    // toast({
-    //   title: "Copied!",
-    //   description: "Meeting link copied to clipboard.",
-    // });
+    toast.info('Meeting link copied to clipboard.');
   };
 
   const joinMeeting = () => {

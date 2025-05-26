@@ -4,6 +4,7 @@ import { Calendar, Clock, Copy, ExternalLink, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
 
 interface Meeting {
   id: string;
@@ -52,10 +53,7 @@ export const MeetingsList = () => {
 
   const copyLink = (link: string) => {
     navigator.clipboard.writeText(link);
-    // toast({
-    //   title: "Copied!",
-    //   description: "Meeting link copied to clipboard.",
-    // });
+    toast.info("Meeting link copied to clipboard.");
   };
 
   const joinMeeting = (link: string) => {
@@ -63,10 +61,7 @@ export const MeetingsList = () => {
   };
 
   const deleteMeeting = (id: string) => {
-    // toast({
-    //   title: "Meeting deleted",
-    //   description: "The meeting has been removed from your list.",
-    // });
+    toast.error("The meeting has been removed from your list.");
   };
 
   const getStatusColor = (status: string) => {

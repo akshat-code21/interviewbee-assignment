@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 export const ScheduledMeetingCard = () => {
   const [date, setDate] = useState<Date>();
@@ -20,11 +21,7 @@ export const ScheduledMeetingCard = () => {
 
   const scheduleMeeting = async () => {
     if (!date || !time || !title) {
-    //   toast({
-    //     title: "Missing information",
-    //     description: "Please fill in all required fields.",
-    //     variant: "destructive",
-    //   });
+      toast.error("Please fill in all required fields.");
       return;
     }
 
@@ -37,10 +34,7 @@ export const ScheduledMeetingCard = () => {
       
       setIsScheduling(false);
       
-    //   toast({
-    //     title: "Meeting scheduled!",
-    //     description: `Your meeting "${title}" has been scheduled for ${format(date, 'PPP')} at ${time}.`,
-    //   });
+      toast.success(`Your meeting "${title}" has been scheduled for ${format(date, 'PPP')} at ${time}.`);
       
       // Reset form
       setDate(undefined);
