@@ -1,6 +1,6 @@
 "use client"
 import { useState } from 'react';
-import { Calendar, Clock, Plus } from 'lucide-react';
+import { Calendar, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,37 +11,57 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import axios from 'axios';
 
 export const ScheduledMeetingCard = () => {
   const [date, setDate] = useState<Date>();
   const [time, setTime] = useState('');
+  const [endTime, setEndTime] = useState('');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [isScheduling, setIsScheduling] = useState(false);
+  const [meetLink, setMeetLink] = useState<string | null>(null);
 
   const scheduleMeeting = async () => {
-    if (!date || !time || !title) {
+    if (!date || !time || !endTime || !title) {
       toast.error("Please fill in all required fields.");
       return;
     }
 
+    const [startHour, startMinute] = time.split(':').map(Number);
+    const [endHour, endMinute] = endTime.split(':').map(Number);
+    if (endHour < startHour || (endHour === startHour && endMinute <= startMinute)) {
+      toast.error("End time must be after start time.");
+      return;
+    }
+
     setIsScheduling(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      const mockMeetingId = Math.random().toString(36).substr(2, 9);
-      const meetingLink = `https://meet.google.com/${mockMeetingId}`;
-      
+
+    try {
+      const response = await axios.post('/api/createScheduledMeeting', {
+        title,
+        description,
+        date: date.toISOString(),
+        startTime: time,
+        endTime: endTime
+      });
+
+      if (response.data.success) {
+        toast.success(`Your meeting "${title}" has been scheduled for ${format(date, 'PPP')} from ${time} to ${endTime}.`);
+        setMeetLink(response.data.meetLink);
+        setDate(undefined);
+        setTime('');
+        setEndTime('');
+        setTitle('');
+        setDescription('');
+      } else {
+        throw new Error(response.data.error || "Failed to schedule meeting");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to schedule meeting");
+    } finally {
       setIsScheduling(false);
-      
-      toast.success(`Your meeting "${title}" has been scheduled for ${format(date, 'PPP')} at ${time}.`);
-      
-      // Reset form
-      setDate(undefined);
-      setTime('');
-      setTitle('');
-      setDescription('');
-    }, 1500);
+    }
   };
 
   return (
@@ -57,6 +77,19 @@ export const ScheduledMeetingCard = () => {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
+          {meetLink && (
+            <div className="p-4 bg-green-50 rounded-lg mb-4">
+              <p className="text-sm text-green-800 mb-2">Meeting scheduled successfully!</p>
+              <a
+                href={meetLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-green-600 hover:text-green-800 underline break-all"
+              >
+                Join meeting: {meetLink}
+              </a>
+            </div>
+          )}
           <div>
             <Label htmlFor="title" className="text-sm font-medium">Meeting Title *</Label>
             <Input
@@ -67,7 +100,7 @@ export const ScheduledMeetingCard = () => {
               className="mt-1 text-sm"
             />
           </div>
-          
+
           <div>
             <Label className="text-sm font-medium">Date *</Label>
             <Popover>
@@ -97,12 +130,23 @@ export const ScheduledMeetingCard = () => {
           </div>
 
           <div>
-            <Label htmlFor="time" className="text-sm font-medium">Time *</Label>
+            <Label htmlFor="time" className="text-sm font-medium">Start Time *</Label>
             <Input
               id="time"
               type="time"
               value={time}
               onChange={(e) => setTime(e.target.value)}
+              className="mt-1 text-sm"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="endTime" className="text-sm font-medium">End Time *</Label>
+            <Input
+              id="endTime"
+              type="time"
+              value={endTime}
+              onChange={(e) => setEndTime(e.target.value)}
               className="mt-1 text-sm"
             />
           </div>
@@ -119,8 +163,8 @@ export const ScheduledMeetingCard = () => {
             />
           </div>
 
-          <Button 
-            onClick={scheduleMeeting} 
+          <Button
+            onClick={scheduleMeeting}
             disabled={isScheduling}
             className="w-full text-sm sm:text-base"
             size="lg"

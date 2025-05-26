@@ -14,7 +14,7 @@ export const InstantMeetingCard = () => {
   const generateMeetingLink = async () => {
     setIsGenerating(true);
     try {
-      const response = await axios.get('/api/createMeeting');
+      const response = await axios.get('/api/createInstantMeeting');
       setMeetingLink(response.data.meetLink);
       setIsGenerating(false);
     } catch (error) {

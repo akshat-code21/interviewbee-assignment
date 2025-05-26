@@ -1,10 +1,10 @@
 import { google } from "googleapis";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { Session } from "next-auth";
 
-interface CustomSession extends Session {
+export interface CustomSession extends Session {
     accessToken?: string;
     refreshToken?: string;
 }
