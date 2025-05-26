@@ -20,24 +20,11 @@ export const authOptions: NextAuthOptions = {
     ],
     session: {
         strategy: "jwt",
-    },
-    pages: {
-        signIn: "/",
-        error: "/",
-        signOut: "/"
+        maxAge: 30 * 24 * 60 * 60,
     },
     callbacks: {
         async redirect({ url, baseUrl }) {
-            if (url.includes('/api/auth/callback')) {
-                return `${baseUrl}/dashboard`
-            }
-            if (url.startsWith("/")) {
-                return `${baseUrl}${url}`
-            }
-            if (new URL(url).origin === baseUrl) {
-                return url
-            }
-            return baseUrl
+            return url.startsWith(baseUrl) ? url : `${baseUrl}/dashboard`
         },
         async session({ session, token }: { session: Session, token: JWT }) {
             return {
@@ -60,17 +47,8 @@ export const authOptions: NextAuthOptions = {
             return token
         },
     },
-    debug: process.env.NODE_ENV === 'development',
-    useSecureCookies: process.env.NODE_ENV === "production",
-    cookies: {
-        sessionToken: {
-            name: `next-auth.session-token`,
-            options: {
-                httpOnly: true,
-                sameSite: 'lax',
-                path: '/',
-                secure: process.env.NODE_ENV === "production"
-            }
-        }
-    }
+    pages: {
+        signIn: '/',
+    },
+    debug: true
 } 

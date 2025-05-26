@@ -3,15 +3,30 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 const GoogleSignInButton = () => {
     const [isLoading, setIsLoading] = useState(false);
+    const router = useRouter();
 
-    const handleGoogleLogin = () => {
-        setIsLoading(true);
-        signIn('google', {
-            callbackUrl: '/dashboard'
-        });
+    const handleGoogleLogin = async () => {
+        try {
+            setIsLoading(true);
+            const result = await signIn('google', {
+                redirect: false,
+                callbackUrl: '/dashboard'
+            });
+            
+            if (result?.error) {
+                console.error('Authentication error:', result.error);
+            } else if (result?.url) {
+                router.push(result.url);
+            }
+        } catch (error) {
+            console.error('Sign in error:', error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (

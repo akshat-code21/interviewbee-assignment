@@ -4,21 +4,8 @@ import type { NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
     const token = await getToken({ req: request })
-    const isAuthenticated = !!token
 
-    const publicPaths = ['/', '/api/auth']
-    const isPublicPath = publicPaths.some(path =>
-        request.nextUrl.pathname.startsWith(path)
-    )
-
-    if (isPublicPath) {
-        if (isAuthenticated && request.nextUrl.pathname === '/') {
-            return NextResponse.redirect(new URL('/dashboard', request.url))
-        }
-        return NextResponse.next()
-    }
-
-    if (!isAuthenticated) {
+    if (!token && !request.nextUrl.pathname.startsWith('/api/auth')) {
         return NextResponse.redirect(new URL('/', request.url))
     }
 
@@ -26,5 +13,8 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/((?!_next/static|_next/image|favicon.ico).*)']
+    matcher: [
+        '/dashboard/:path*',
+        '/((?!api/auth|_next/static|_next/image|favicon.ico).*)',
+    ]
 } 
