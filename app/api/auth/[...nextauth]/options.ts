@@ -1,4 +1,4 @@
-import type { NextAuthOptions, Session, User } from "next-auth"
+import type { NextAuthOptions, Session } from "next-auth"
 import type { JWT } from "next-auth/jwt"
 import type { Account } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
@@ -22,12 +22,21 @@ export const authOptions: NextAuthOptions = {
         strategy: "jwt",
     },
     pages: {
-        signIn: "/"
+        signIn: "/",
+        error: "/",
+        signOut: "/"
     },
     callbacks: {
         async redirect({ url, baseUrl }) {
-            if (url.startsWith("/")) return `${baseUrl}${url}`
-            else if (new URL(url).origin === baseUrl) return url
+            if (url.includes('/api/auth/callback')) {
+                return `${baseUrl}/dashboard`
+            }
+            if (url.startsWith("/")) {
+                return `${baseUrl}${url}`
+            }
+            if (new URL(url).origin === baseUrl) {
+                return url
+            }
             return baseUrl
         },
         async session({ session, token }: { session: Session, token: JWT }) {
@@ -51,6 +60,7 @@ export const authOptions: NextAuthOptions = {
             return token
         },
     },
+    debug: process.env.NODE_ENV === 'development',
     useSecureCookies: process.env.NODE_ENV === "production",
     cookies: {
         sessionToken: {
