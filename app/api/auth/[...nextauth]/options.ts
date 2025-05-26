@@ -24,7 +24,13 @@ export const authOptions: NextAuthOptions = {
     },
     callbacks: {
         async redirect({ url, baseUrl }) {
-            return url.startsWith(baseUrl) ? url : `${baseUrl}/dashboard`
+            if (url.includes('/api/auth/callback')) {
+                return `${baseUrl}/dashboard`
+            }
+            if (url.startsWith('/')) {
+                return `${baseUrl}${url}`
+            }
+            return baseUrl
         },
         async session({ session, token }: { session: Session, token: JWT }) {
             return {
@@ -50,5 +56,5 @@ export const authOptions: NextAuthOptions = {
     pages: {
         signIn: '/',
     },
-    debug: true
+    debug: process.env.NODE_ENV === 'development'
 } 
