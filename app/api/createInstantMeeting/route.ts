@@ -10,7 +10,7 @@ export interface CustomSession extends Session {
 }
 
 export async function GET() {
-    const session = (await getServerSession(authOptions as unknown as any)) as CustomSession;
+    const session = await getServerSession(authOptions) as CustomSession;
     
     if (!session?.accessToken) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

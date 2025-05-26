@@ -1,5 +1,5 @@
 "use client"
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { Calendar, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
@@ -12,8 +12,10 @@ import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import axios from 'axios';
+import { MeetingContext } from '@/context/MeetingContext';
 
 export const ScheduledMeetingCard = () => {
+  const { meetings, setMeetings } = useContext(MeetingContext);
   const [date, setDate] = useState<Date>();
   const [time, setTime] = useState('');
   const [endTime, setEndTime] = useState('');
@@ -54,6 +56,17 @@ export const ScheduledMeetingCard = () => {
         setEndTime('');
         setTitle('');
         setDescription('');
+        setMeetings([...meetings, {
+          id: response.data.id,
+          title,
+          description,
+          date,
+          startTime: time,
+          endTime: endTime,
+          link: response.data.meetLink,
+          type: 'scheduled',
+          status: 'upcoming'
+        }]);
       } else {
         throw new Error(response.data.error || "Failed to schedule meeting");
       }

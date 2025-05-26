@@ -1,10 +1,11 @@
 "use client"
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { Calendar, Clock, Copy, ExternalLink, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import { MeetingContext } from '@/context/MeetingContext';
 
 interface Meeting {
   id: string;
@@ -18,38 +19,7 @@ interface Meeting {
 }
 
 export const MeetingsList = () => {
-  
-  const [meetings] = useState<Meeting[]>([
-    {
-      id: '1',
-      title: 'Team Standup',
-      description: 'Daily team sync and updates',
-      date: '2024-01-15',
-      time: '09:00',
-      link: 'https://meet.google.com/abc-defg-hij',
-      type: 'scheduled',
-      status: 'upcoming'
-    },
-    {
-      id: '2',
-      title: 'Project Review',
-      description: 'Quarterly project review with stakeholders',
-      date: '2024-01-16',
-      time: '14:30',
-      link: 'https://meet.google.com/xyz-uvwx-yz',
-      type: 'scheduled',
-      status: 'upcoming'
-    },
-    {
-      id: '3',
-      title: 'Quick Discussion',
-      date: '2024-01-14',
-      time: '16:45',
-      link: 'https://meet.google.com/def-ghij-klm',
-      type: 'instant',
-      status: 'completed'
-    }
-  ]);
+  const { meetings, setMeetings } = useContext(MeetingContext);
 
   const copyLink = (link: string) => {
     navigator.clipboard.writeText(link);
@@ -99,9 +69,9 @@ export const MeetingsList = () => {
               <p className="text-sm sm:text-base">No meetings found. Create your first meeting above!</p>
             </div>
           ) : (
-            meetings.map((meeting) => (
+            meetings.map((meeting,index) => (
               <div 
-                key={meeting.id} 
+                key={index} 
                 className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border rounded-lg hover:bg-gray-50 transition-colors space-y-3 sm:space-y-0"
               >
                 <div className="flex-1 min-w-0">
@@ -124,11 +94,11 @@ export const MeetingsList = () => {
                   <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-4 text-xs sm:text-sm text-gray-500">
                     <div className="flex items-center">
                       <Calendar className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                      {formatDate(meeting.date)}
+                      {formatDate(meeting.date.toISOString())}
                     </div>
                     <div className="flex items-center">
                       <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                      {meeting.time}
+                      {meeting.startTime} - {meeting.endTime} 
                     </div>
                   </div>
                 </div>
