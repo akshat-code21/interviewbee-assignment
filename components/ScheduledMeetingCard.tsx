@@ -18,6 +18,7 @@ import { Meeting } from '@/types/types';
 export const ScheduledMeetingCard = () => {
   const { meetings, setMeetings } = useContext(MeetingContext);
   const [date, setDate] = useState<Date>();
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const [time, setTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [title, setTitle] = useState('');
@@ -121,7 +122,7 @@ export const ScheduledMeetingCard = () => {
 
           <div>
             <Label className="text-sm font-medium">Date *</Label>
-            <Popover>
+            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
@@ -138,8 +139,15 @@ export const ScheduledMeetingCard = () => {
                 <CalendarComponent
                   mode="single"
                   selected={date}
-                  onSelect={setDate}
-                  disabled={(date) => date < new Date()}
+                  onSelect={(date) => {
+                    setDate(date);
+                    setCalendarOpen(false);
+                  }}
+                  disabled={(date) => {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    return date < today;
+                  }}
                   initialFocus
                   className="p-3 pointer-events-auto"
                 />
