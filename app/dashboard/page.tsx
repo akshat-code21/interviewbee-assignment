@@ -12,7 +12,6 @@ const Dashboard = async () => {
     redirect('/');
   }
 
-  console.log(session);
 
   const user = {
     name: session.user.name || 'User',
